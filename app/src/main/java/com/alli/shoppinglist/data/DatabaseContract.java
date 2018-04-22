@@ -22,7 +22,7 @@ public class DatabaseContract {
     }
 
     //Unique authority string for the content provider
-    public static final String CONTENT_AUTHORITY = "com.alli.shoppinglist.shoppinglist";
+    public static final String CONTENT_AUTHORITY = "com.alli.shoppinglist";
 
     /* Sort order constants */
     //Priority first, Completed last, the rest by date
