@@ -6,5 +6,30 @@ package com.alli.shoppinglist.models;
 
 public class ShoppingItem {
     String item;
+    boolean isFulfilled;
+    long timeAdded;
 
+    public String getItem() {
+        return item;
+    }
+
+    public void setItem(String item) {
+        this.item = item;
+    }
+
+    public boolean isFulfilled() {
+        return isFulfilled;
+    }
+
+    public void setFulfilled(boolean fulfilled) {
+        isFulfilled = fulfilled;
+    }
+
+    public long getTimeAdded() {
+        return timeAdded;
+    }
+
+    public void setTimeAdded(long timeAdded) {
+        this.timeAdded = timeAdded;
+    }
 }
