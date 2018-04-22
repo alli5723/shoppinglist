@@ -1,5 +1,6 @@
 package com.alli.shoppinglist;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -19,15 +20,18 @@ import android.view.View;
 
 import com.alli.shoppinglist.data.DatabaseContract;
 import com.alli.shoppinglist.data.ShoppingItemListAdapter;
+import com.alli.shoppinglist.models.ShoppingItem;
 
 import java.util.ArrayList;
+import java.util.List;
+
 // TODO: Handle lifecycle persistence, and remove fixed potrait from manifest
 public class MainActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor>,
         ShoppingItemListAdapter.OnItemClickListener {
 
     public String TAG = MainActivity.class.getSimpleName();
-    ArrayList selectedItems = new ArrayList();
+    List<Integer> selectedItems = new ArrayList();
 
     private ShoppingItemListAdapter adapter;
     private Cursor cursor;
@@ -73,11 +77,23 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_add) {
-            // TODO: Add a new item to list here
-            return true;
+        switch (id){
+            case R.id.action_add :
+                // TODO: Add a new item to list here
+                return true;
+            case R.id.action_done :
+                updateDatabase();
+                return true;
+            case R.id.action_delete :
+                deleteSelected();
+                return true;
+            case R.id.action_remind :
+                // TODO: Implement reminder
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
+
     }
 
     @Override
@@ -123,5 +139,33 @@ public class MainActivity extends AppCompatActivity implements
             selectedItems.remove(selectedItems.indexOf(position));
         }
         ActivityCompat.invalidateOptionsMenu(this);
+    }
+
+    public void updateDatabase(){
+
+        for(int position : selectedItems){
+            cursor.moveToPosition(position);
+            ShoppingItem shoppingItem = new ShoppingItem(cursor);
+
+            Uri uri = DatabaseContract.CONTENT_URI;
+            uri = uri.buildUpon().appendPath((shoppingItem.getId())+"").build();
+            ContentValues values = new ContentValues(1);
+            int complete = 1;
+            values.put(DatabaseContract.TableColumns.IS_FULFILLED, complete);
+            getContentResolver().update(uri, values, null, null);
+        }
+    }
+
+    public void deleteSelected(){
+
+        for(int position : selectedItems){
+            cursor.moveToPosition(position);
+            ShoppingItem shoppingItem = new ShoppingItem(cursor);
+
+            Uri uri = DatabaseContract.CONTENT_URI;
+            uri = uri.buildUpon().appendPath((shoppingItem.getId())+"").build();
+            ContentValues values = new ContentValues(1);
+            getContentResolver().delete(uri, null, null);
+        }
     }
 }
