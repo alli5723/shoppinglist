@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">ShoppingList</string>
+    <string name="app_name">Shopping List</string>
+    <string name="date_empty">today</string>
+    <string name="demo_item">Paprika</string>
 </resources>
