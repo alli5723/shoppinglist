@@ -89,7 +89,23 @@ public class ShoppingItemListAdapter extends RecyclerView.Adapter<ShoppingItemLi
 
     @Override
     public void onBindViewHolder(ItemHolder holder, int position) {
-        // TODO: fill view with model contents
+        ShoppingItem shoppingItem = getItem(position);
+
+        holder.nameView.setTag(shoppingItem.getId());
+        holder.nameView.setText(shoppingItem.getItem());
+        holder.nameView.setState(ShoppingItemTitleView.NORMAL);
+
+        if (shoppingItem.getDateAdded() != Long.MAX_VALUE) {
+            CharSequence formatted = DateUtils.getRelativeTimeSpanString(mContext,
+                    shoppingItem.getDateAdded());
+            holder.dateView.setText(formatted);
+            holder.dateView.setVisibility(View.VISIBLE);
+        }
+
+        if (shoppingItem.isFulfilled()) {
+            holder.nameView.setState(ShoppingItemTitleView.DONE);
+        }
+        holder.checkBox.setChecked(shoppingItem.isFulfilled());
     }
 
     @Override
