@@ -14,7 +14,6 @@ import com.alli.shoppinglist.R;
 import com.alli.shoppinglist.models.ShoppingItem;
 import com.alli.shoppinglist.views.ShoppingItemTitleView;
 
-import java.util.Calendar;
 
 /**
  * Created by omo_lanke on 22/04/2018.

@@ -2,5 +2,8 @@
     <string name="app_name">Shopping List</string>
     <string name="date_empty">today</string>
     <string name="demo_item">Paprika</string>
-    <string name="onboard">Your list shows here</string>
+    <string name="onboard">Use the + button above to add items</string>
+    <string name="add_hint">What would you like to buy?</string>
+
+    <string name="add_error">You have not entered an item?</string>
 </resources>

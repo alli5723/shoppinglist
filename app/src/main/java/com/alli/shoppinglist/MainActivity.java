@@ -79,16 +79,14 @@ public class MainActivity extends AppCompatActivity implements
         int id = item.getItemId();
         switch (id){
             case R.id.action_add :
-                // TODO: Add a new item to list here
+                Intent intent = new Intent(this, AddItemActivity.class);
+                startActivity(intent);
                 return true;
             case R.id.action_done :
                 updateDatabase();
                 return true;
             case R.id.action_delete :
                 deleteSelected();
-                return true;
-            case R.id.action_remind :
-                // TODO: Implement reminder
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -128,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onItemClick(View v, int position) {
-
+        //TODO: Add a function to show details and remove from fulfilled
     }
 
     @Override
@@ -136,9 +134,23 @@ public class MainActivity extends AppCompatActivity implements
         if (active){
             selectedItems.add(position);
         }else{
-            selectedItems.remove(selectedItems.indexOf(position));
+            if (wasFulfilled(position)){
+                showAlertMessage(position);
+            }else{
+                selectedItems.remove(selectedItems.indexOf(position));
+            }
         }
         ActivityCompat.invalidateOptionsMenu(this);
+    }
+
+    private void showAlertMessage(int position){
+        //TODO: Inform user that this item has been previously fulfilled
+    }
+
+    private boolean wasFulfilled(int position){
+        cursor.moveToPosition(position);
+        ShoppingItem shoppingItem = new ShoppingItem(cursor);
+        return shoppingItem.isFulfilled();
     }
 
     public void updateDatabase(){
