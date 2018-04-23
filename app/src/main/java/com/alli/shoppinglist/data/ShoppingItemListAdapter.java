@@ -100,9 +100,10 @@ public class ShoppingItemListAdapter extends RecyclerView.Adapter<ShoppingItemLi
             holder.dateView.setText(formatted);
             holder.dateView.setVisibility(View.VISIBLE);
         }
-
+        holder.checkBox.setEnabled(true);
         if (shoppingItem.isFulfilled()) {
             holder.nameView.setState(ShoppingItemTitleView.DONE);
+            holder.checkBox.setEnabled(false);
         }
         holder.checkBox.setChecked(shoppingItem.isFulfilled());
     }

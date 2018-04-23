@@ -85,27 +85,26 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.action_add :
                 Intent intent = new Intent(this, AddItemActivity.class);
                 startActivity(intent);
-                return true;
+                break;
             case R.id.action_done :
                 updateDatabase();
-                return true;
+                break;
             case R.id.action_delete :
                 deleteSelected();
-                return true;
+                break;
             case R.id.action_basket :
                 listFulfilled = true;
-                ActivityCompat.invalidateOptionsMenu(this);
                 getSupportLoaderManager().restartLoader(ID_LIST_LOADER, null, this);
-                return true;
+                break;
             case R.id.action_view_all :
                 listFulfilled = false;
-                ActivityCompat.invalidateOptionsMenu(this);
                 getSupportLoaderManager().restartLoader(ID_LIST_LOADER, null, this);
-                return true;
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }
-
+        ActivityCompat.invalidateOptionsMenu(this);
+        return true;
     }
 
     private String whereFulfilledIs(boolean f){
@@ -176,7 +175,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void updateDatabase(){
-
         for(int position : selectedItems){
             cursor.moveToPosition(position);
             ShoppingItem shoppingItem = new ShoppingItem(cursor);
@@ -188,10 +186,10 @@ public class MainActivity extends AppCompatActivity implements
             values.put(DatabaseContract.TableColumns.IS_FULFILLED, complete);
             getContentResolver().update(uri, values, null, null);
         }
+        selectedItems.clear();
     }
 
     public void deleteSelected(){
-
         for(int position : selectedItems){
             cursor.moveToPosition(position);
             ShoppingItem shoppingItem = new ShoppingItem(cursor);
@@ -201,5 +199,6 @@ public class MainActivity extends AppCompatActivity implements
             ContentValues values = new ContentValues(1);
             getContentResolver().delete(uri, null, null);
         }
+        selectedItems.clear();
     }
 }
