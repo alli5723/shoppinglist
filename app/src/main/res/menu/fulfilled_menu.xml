@@ -8,8 +8,8 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/action_basket"
+        android:id="@+id/action_view_all"
         android:title="Basket"
-        android:icon="@drawable/ic_shopping_basket_white_24px"
+        android:icon="@drawable/ic_view_list_white_24px"
         app:showAsAction="always|withText" />
 </menu>

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements
 
     public String TAG = MainActivity.class.getSimpleName();
     List<Integer> selectedItems = new ArrayList();
+    boolean listFulfilled = false;
 
     private ShoppingItemListAdapter adapter;
     private Cursor cursor;
@@ -67,6 +69,8 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         if (selectedItems != null && selectedItems.size() > 0){
             getMenuInflater().inflate(R.menu.item_menu, menu);
+        }else if(listFulfilled == true){
+            getMenuInflater().inflate(R.menu.fulfilled_menu, menu);
         }else{
             getMenuInflater().inflate(R.menu.main_menu, menu);
         }
@@ -88,21 +92,40 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.action_delete :
                 deleteSelected();
                 return true;
+            case R.id.action_basket :
+                listFulfilled = true;
+                ActivityCompat.invalidateOptionsMenu(this);
+                getSupportLoaderManager().restartLoader(ID_LIST_LOADER, null, this);
+                return true;
+            case R.id.action_view_all :
+                listFulfilled = false;
+                ActivityCompat.invalidateOptionsMenu(this);
+                getSupportLoaderManager().restartLoader(ID_LIST_LOADER, null, this);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
 
     }
 
+    private String whereFulfilledIs(boolean f){
+        if(f){
+            return DatabaseContract.TableColumns.IS_FULFILLED + " = 1";
+        }else{
+            return DatabaseContract.TableColumns.IS_FULFILLED + " = 0";
+        }
+    }
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Log.e("Query", whereFulfilledIs(listFulfilled));
         switch (id){
             case ID_LIST_LOADER :
                 Uri queryUri = DatabaseContract.CONTENT_URI;
                 return new CursorLoader(this,
                         queryUri,
                         PROJECTION,
-                        null,
+                        whereFulfilledIs(listFulfilled),
                         null,
                         sortOrder);
             default:
@@ -115,8 +138,7 @@ public class MainActivity extends AppCompatActivity implements
         if (data.getCount() != 0 && data != null) {
             adapter.swapCursor(data);
             cursor = data;
-        }else
-            Log.e(TAG, "onLoadFinished: No data found in db" );
+        }
     }
 
     @Override

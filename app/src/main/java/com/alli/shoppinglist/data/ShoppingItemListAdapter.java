@@ -132,9 +132,6 @@ public class ShoppingItemListAdapter extends RecyclerView.Adapter<ShoppingItemLi
     }
 
     public void swapCursor(Cursor cursor) {
-        if (mCursor != null) {
-            mCursor.close();
-        }
         mCursor = cursor;
         notifyDataSetChanged();
     }
