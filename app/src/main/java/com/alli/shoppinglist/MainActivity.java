@@ -2,14 +2,17 @@ package com.alli.shoppinglist;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Parcelable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,6 +21,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.alli.shoppinglist.data.DatabaseContract;
 import com.alli.shoppinglist.data.ShoppingItemListAdapter;
@@ -26,7 +30,6 @@ import com.alli.shoppinglist.models.ShoppingItem;
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO: Handle lifecycle persistence, and remove fixed potrait from manifest
 public class MainActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor>,
         ShoppingItemListAdapter.OnItemClickListener {
@@ -39,6 +42,10 @@ public class MainActivity extends AppCompatActivity implements
     private Cursor cursor;
     String sortOrder = DatabaseContract.DEFAULT_SORT;
     Context context;
+    private RecyclerView recyclerView;
+
+    private static final String BUNDLE_RECYCLER_LAYOUT = "classname.recycler.layout";
+    private static final String CURRENT_VIEW = "current_view";
 
     public static final int ID_LIST_LOADER = 1;
     public static final String[] PROJECTION = {
@@ -57,12 +64,26 @@ public class MainActivity extends AppCompatActivity implements
         adapter = new ShoppingItemListAdapter(null);
         adapter.setOnItemClickListener(this);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         getSupportLoaderManager().initLoader(ID_LIST_LOADER, null, this);
+        if (savedInstanceState != null) {
+            Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable(BUNDLE_RECYCLER_LAYOUT);
+            recyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
+            listFulfilled = savedInstanceState.getBoolean(CURRENT_VIEW);
+        }
+        setActionBarSubtitle();
+    }
+
+    private void setActionBarSubtitle(){
+        if(listFulfilled == true){
+            getSupportActionBar().setSubtitle("Already in basket");
+        }else{
+            getSupportActionBar().setSubtitle("Shopping list");
+        }
     }
 
     @Override
@@ -95,10 +116,12 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.action_basket :
                 listFulfilled = true;
                 getSupportLoaderManager().restartLoader(ID_LIST_LOADER, null, this);
+                setActionBarSubtitle();
                 break;
             case R.id.action_view_all :
                 listFulfilled = false;
                 getSupportLoaderManager().restartLoader(ID_LIST_LOADER, null, this);
+                setActionBarSubtitle();
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -116,8 +139,20 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(BUNDLE_RECYCLER_LAYOUT, recyclerView.getLayoutManager().onSaveInstanceState());
+        outState.putBoolean(CURRENT_VIEW, listFulfilled);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Log.e("Query", whereFulfilledIs(listFulfilled));
+        adapter.swapCursor(null);
         switch (id){
             case ID_LIST_LOADER :
                 Uri queryUri = DatabaseContract.CONTENT_URI;
@@ -147,7 +182,9 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onItemClick(View v, int position) {
-        //TODO: Add a function to show details and remove from fulfilled
+        if (wasFulfilled(position)){
+            showAlertMessage(position);
+        }
     }
 
     @Override
@@ -155,17 +192,27 @@ public class MainActivity extends AppCompatActivity implements
         if (active){
             selectedItems.add(position);
         }else{
-            if (wasFulfilled(position)){
-                showAlertMessage(position);
-            }else{
-                selectedItems.remove(selectedItems.indexOf(position));
-            }
+            selectedItems.remove(selectedItems.indexOf(position));
         }
         ActivityCompat.invalidateOptionsMenu(this);
     }
 
     private void showAlertMessage(int position){
-        //TODO: Inform user that this item has been previously fulfilled
+        cursor.moveToPosition(position);
+        Uri uri_base = DatabaseContract.CONTENT_URI;
+        final ShoppingItem shoppingItem = new ShoppingItem(cursor);
+        final Uri uri = uri_base.buildUpon().appendPath((shoppingItem.getId())+"").build();
+
+        new AlertDialog.Builder(this)
+                .setMessage("Shopping item has been fulfilled, would you like to delete?")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        getContentResolver().delete(uri, null, null);
+                        Toast.makeText(MainActivity.this, "Item deleted successfully", Toast.LENGTH_SHORT).show();
+                    }})
+                .setNegativeButton("NO", null).show();
     }
 
     private boolean wasFulfilled(int position){
