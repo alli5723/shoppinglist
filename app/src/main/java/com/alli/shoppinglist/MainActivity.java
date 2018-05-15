@@ -6,18 +6,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,19 +32,6 @@ public class MainActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor>,
         ShoppingItemListAdapter.OnItemClickListener {
 
-    public String TAG = MainActivity.class.getSimpleName();
-    List<Integer> selectedItems = new ArrayList();
-    boolean listFulfilled = false;
-
-    private ShoppingItemListAdapter adapter;
-    private Cursor cursor;
-    String sortOrder = DatabaseContract.DEFAULT_SORT;
-    Context context;
-    private RecyclerView recyclerView;
-
-    private static final String BUNDLE_RECYCLER_LAYOUT = "classname.recycler.layout";
-    private static final String CURRENT_VIEW = "current_view";
-
     public static final int ID_LIST_LOADER = 1;
     public static final String[] PROJECTION = {
             DatabaseContract.TableColumns._ID,
@@ -54,6 +39,16 @@ public class MainActivity extends AppCompatActivity implements
             DatabaseContract.TableColumns.DATE_ADDED,
             DatabaseContract.TableColumns.IS_FULFILLED
     };
+    private static final String BUNDLE_RECYCLER_LAYOUT = "classname.recycler.layout";
+    private static final String CURRENT_VIEW = "current_view";
+    public String TAG = MainActivity.class.getSimpleName();
+    List<Integer> selectedItems = new ArrayList();
+    boolean listFulfilled = false;
+    String sortOrder = DatabaseContract.DEFAULT_SORT;
+    Context context;
+    private ShoppingItemListAdapter adapter;
+    private Cursor cursor;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,21 +73,21 @@ public class MainActivity extends AppCompatActivity implements
         setActionBarSubtitle();
     }
 
-    private void setActionBarSubtitle(){
-        if(listFulfilled == true){
+    private void setActionBarSubtitle() {
+        if (listFulfilled == true) {
             getSupportActionBar().setSubtitle("Already in basket");
-        }else{
+        } else {
             getSupportActionBar().setSubtitle("Shopping list");
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (selectedItems != null && selectedItems.size() > 0){
+        if (selectedItems != null && selectedItems.size() > 0) {
             getMenuInflater().inflate(R.menu.item_menu, menu);
-        }else if(listFulfilled == true){
+        } else if (listFulfilled == true) {
             getMenuInflater().inflate(R.menu.fulfilled_menu, menu);
-        }else{
+        } else {
             getMenuInflater().inflate(R.menu.main_menu, menu);
         }
 
@@ -102,23 +97,23 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        switch (id){
-            case R.id.action_add :
+        switch (id) {
+            case R.id.action_add:
                 Intent intent = new Intent(this, AddItemActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.action_done :
+            case R.id.action_done:
                 updateDatabase();
                 break;
-            case R.id.action_delete :
+            case R.id.action_delete:
                 deleteSelected();
                 break;
-            case R.id.action_basket :
+            case R.id.action_basket:
                 listFulfilled = true;
                 getSupportLoaderManager().restartLoader(ID_LIST_LOADER, null, this);
                 setActionBarSubtitle();
                 break;
-            case R.id.action_view_all :
+            case R.id.action_view_all:
                 listFulfilled = false;
                 getSupportLoaderManager().restartLoader(ID_LIST_LOADER, null, this);
                 setActionBarSubtitle();
@@ -130,10 +125,10 @@ public class MainActivity extends AppCompatActivity implements
         return true;
     }
 
-    private String whereFulfilledIs(boolean f){
-        if(f){
+    private String whereFulfilledIs(boolean f) {
+        if (f) {
             return DatabaseContract.TableColumns.IS_FULFILLED + " = 1";
-        }else{
+        } else {
             return DatabaseContract.TableColumns.IS_FULFILLED + " = 0";
         }
     }
@@ -153,8 +148,8 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         adapter.swapCursor(null);
-        switch (id){
-            case ID_LIST_LOADER :
+        switch (id) {
+            case ID_LIST_LOADER:
                 Uri queryUri = DatabaseContract.CONTENT_URI;
                 return new CursorLoader(this,
                         queryUri,
@@ -163,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements
                         null,
                         sortOrder);
             default:
-                throw new RuntimeException("Loader not implemented for "+ id);
+                throw new RuntimeException("Loader not implemented for " + id);
         }
     }
 
@@ -182,26 +177,26 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onItemClick(View v, int position) {
-        if (wasFulfilled(position)){
+        if (wasFulfilled(position)) {
             showAlertMessage(position);
         }
     }
 
     @Override
     public void onItemToggled(boolean active, int position) {
-        if (active){
+        if (active) {
             selectedItems.add(position);
-        }else{
+        } else {
             selectedItems.remove(selectedItems.indexOf(position));
         }
         ActivityCompat.invalidateOptionsMenu(this);
     }
 
-    private void showAlertMessage(int position){
+    private void showAlertMessage(int position) {
         cursor.moveToPosition(position);
         Uri uri_base = DatabaseContract.CONTENT_URI;
         final ShoppingItem shoppingItem = new ShoppingItem(cursor);
-        final Uri uri = uri_base.buildUpon().appendPath((shoppingItem.getId())+"").build();
+        final Uri uri = uri_base.buildUpon().appendPath((shoppingItem.getId()) + "").build();
 
         new AlertDialog.Builder(this)
                 .setMessage("Shopping item has been fulfilled, would you like to delete?")
@@ -211,23 +206,24 @@ public class MainActivity extends AppCompatActivity implements
                     public void onClick(DialogInterface dialog, int whichButton) {
                         getContentResolver().delete(uri, null, null);
                         Toast.makeText(MainActivity.this, "Item deleted successfully", Toast.LENGTH_SHORT).show();
-                    }})
+                    }
+                })
                 .setNegativeButton("NO", null).show();
     }
 
-    private boolean wasFulfilled(int position){
+    private boolean wasFulfilled(int position) {
         cursor.moveToPosition(position);
         ShoppingItem shoppingItem = new ShoppingItem(cursor);
         return shoppingItem.isFulfilled();
     }
 
-    public void updateDatabase(){
-        for(int position : selectedItems){
+    public void updateDatabase() {
+        for (int position : selectedItems) {
             cursor.moveToPosition(position);
             ShoppingItem shoppingItem = new ShoppingItem(cursor);
 
             Uri uri = DatabaseContract.CONTENT_URI;
-            uri = uri.buildUpon().appendPath((shoppingItem.getId())+"").build();
+            uri = uri.buildUpon().appendPath((shoppingItem.getId()) + "").build();
             ContentValues values = new ContentValues(1);
             int complete = 1;
             values.put(DatabaseContract.TableColumns.IS_FULFILLED, complete);
@@ -236,13 +232,13 @@ public class MainActivity extends AppCompatActivity implements
         selectedItems.clear();
     }
 
-    public void deleteSelected(){
-        for(int position : selectedItems){
+    public void deleteSelected() {
+        for (int position : selectedItems) {
             cursor.moveToPosition(position);
             ShoppingItem shoppingItem = new ShoppingItem(cursor);
 
             Uri uri = DatabaseContract.CONTENT_URI;
-            uri = uri.buildUpon().appendPath((shoppingItem.getId())+"").build();
+            uri = uri.buildUpon().appendPath((shoppingItem.getId()) + "").build();
             ContentValues values = new ContentValues(1);
             getContentResolver().delete(uri, null, null);
         }

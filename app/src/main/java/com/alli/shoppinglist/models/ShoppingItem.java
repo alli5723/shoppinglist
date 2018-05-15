@@ -18,6 +18,13 @@ public class ShoppingItem {
     boolean isFulfilled;
     long dateAdded;
 
+    public ShoppingItem(Cursor cursor) {
+        this.id = getColumnLong(cursor, DatabaseContract.TableColumns._ID);
+        this.item = getColumnString(cursor, DatabaseContract.TableColumns.ITEM);
+        this.isFulfilled = getColumnInt(cursor, DatabaseContract.TableColumns.IS_FULFILLED) == 1;
+        this.dateAdded = getColumnLong(cursor, DatabaseContract.TableColumns.DATE_ADDED);
+    }
+
     public long getId() {
         return id;
     }
@@ -48,12 +55,5 @@ public class ShoppingItem {
 
     public void setDateAdded(long dateAdded) {
         this.dateAdded = dateAdded;
-    }
-
-    public ShoppingItem(Cursor cursor) {
-        this.id = getColumnLong(cursor, DatabaseContract.TableColumns._ID);
-        this.item = getColumnString(cursor, DatabaseContract.TableColumns.ITEM);
-        this.isFulfilled = getColumnInt(cursor, DatabaseContract.TableColumns.IS_FULFILLED) == 1;
-        this.dateAdded = getColumnLong(cursor, DatabaseContract.TableColumns.DATE_ADDED);
     }
 }

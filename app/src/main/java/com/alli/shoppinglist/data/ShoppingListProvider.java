@@ -18,10 +18,8 @@ public class ShoppingListProvider extends ContentProvider {
 
     private static final int ITEMS = 100;
     private static final int ITEMS_WITH_ID = 101;
-
-    private DbHelper mDbHelper;
-
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
     static {
         sUriMatcher.addURI(DatabaseContract.CONTENT_AUTHORITY,
                 DatabaseContract.TABLE_SHOPPING_ITEM,
@@ -31,6 +29,8 @@ public class ShoppingListProvider extends ContentProvider {
                 DatabaseContract.TABLE_SHOPPING_ITEM + "/#",
                 ITEMS_WITH_ID);
     }
+
+    private DbHelper mDbHelper;
 
     @Override
     public boolean onCreate() {
@@ -49,8 +49,8 @@ public class ShoppingListProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
                         String sortOrder) {
         Cursor cursor;
-        switch (sUriMatcher.match(uri)){
-            case ITEMS_WITH_ID : {
+        switch (sUriMatcher.match(uri)) {
+            case ITEMS_WITH_ID: {
                 String id = uri.getLastPathSegment();
                 String[] selectionArguments = new String[]{id};
 
@@ -65,7 +65,7 @@ public class ShoppingListProvider extends ContentProvider {
                 );
                 break;
             }
-            case ITEMS : {
+            case ITEMS: {
                 cursor = mDbHelper.getReadableDatabase().query(
                         DatabaseContract.TABLE_SHOPPING_ITEM,
                         projection,
@@ -89,12 +89,12 @@ public class ShoppingListProvider extends ContentProvider {
     public Uri insert(Uri uri, ContentValues values) {
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
         Uri returnUri = null;
-        switch (sUriMatcher.match(uri)){
-            case ITEMS :
+        switch (sUriMatcher.match(uri)) {
+            case ITEMS:
                 long id = db.insert(DatabaseContract.TABLE_SHOPPING_ITEM, null, values);
-                if (id > 0){
+                if (id > 0) {
                     returnUri = ContentUris.withAppendedId(DatabaseContract.CONTENT_URI, id);
-                }else {
+                } else {
                     throw new android.database.SQLException("Failed to insert shopping item");
                 }
                 break;
@@ -110,8 +110,8 @@ public class ShoppingListProvider extends ContentProvider {
 
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int update = 0;
-        switch (sUriMatcher.match(uri)){
-            case ITEMS_WITH_ID :
+        switch (sUriMatcher.match(uri)) {
+            case ITEMS_WITH_ID:
                 String id = uri.getLastPathSegment();
                 String[] whereArguments = new String[]{id};
                 update = db.update(

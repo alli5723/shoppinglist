@@ -3,15 +3,15 @@ package com.alli.shoppinglist;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.alli.shoppinglist.data.DatabaseContract;
 import com.alli.shoppinglist.data.DatabaseContract.TableColumns;
@@ -30,7 +30,7 @@ public class AddItemActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_item);
 
         item = (EditText) findViewById(R.id.item_name);
-        addItem = (Button)findViewById(R.id.add_item);
+        addItem = (Button) findViewById(R.id.add_item);
         addItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -49,8 +49,8 @@ public class AddItemActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        switch (id){
-            case R.id.action_remind :
+        switch (id) {
+            case R.id.action_remind:
                 createPhoneReminder();
                 return true;
             default:
@@ -71,22 +71,24 @@ public class AddItemActivity extends AppCompatActivity {
         finish();
     }
 
-    private void createPhoneReminder(){
+    private void createPhoneReminder() {
         if ((item.getText().toString()).equalsIgnoreCase("")) {
             Snackbar mySnackbar = Snackbar.make(item,
                     R.string.add_error, Snackbar.LENGTH_SHORT);
             mySnackbar.show();
             return;
         }
-        Calendar cal = Calendar.getInstance();
-        Intent intent = new Intent(Intent.ACTION_EDIT);
-        intent.setType("vnd.android.cursor.item/event");
-        intent.putExtra("beginTime", cal.getTimeInMillis());
-        intent.putExtra("allDay", true);
-        intent.putExtra("rrule", "FREQ=ONCE");
-        intent.putExtra("endTime", cal.getTimeInMillis() + 60 * 60 * 1000);
-        intent.putExtra("title", item.getText().toString());
-        startActivity(intent);
+        insertToCalendar();
+    }
 
+    public void insertToCalendar() {
+        Calendar beginTime = Calendar.getInstance();
+        Intent intent = new Intent(Intent.ACTION_INSERT)
+                .setData(CalendarContract.Events.CONTENT_URI)
+                .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, beginTime.getTimeInMillis())
+                .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, beginTime.getTimeInMillis() + 60 * 60 * 1000)
+                .putExtra(CalendarContract.Events.TITLE, item.getText().toString())
+                .putExtra(CalendarContract.Events.DESCRIPTION, "Reminder for " + item.getText().toString());
+        startActivity(intent);
     }
 }

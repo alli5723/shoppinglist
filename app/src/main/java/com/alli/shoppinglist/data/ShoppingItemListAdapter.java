@@ -21,42 +21,9 @@ import com.alli.shoppinglist.views.ShoppingItemTitleView;
 
 public class ShoppingItemListAdapter extends RecyclerView.Adapter<ShoppingItemListAdapter.ItemHolder> {
 
-    public interface OnItemClickListener {
-        void onItemClick(View v, int position);
-
-        void onItemToggled(boolean active, int position);
-    }
-
-    public class ItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public ShoppingItemTitleView nameView;
-        public TextView dateView;
-        public CheckBox checkBox;
-
-        public ItemHolder(View itemView) {
-            super(itemView);
-
-            nameView = (ShoppingItemTitleView) itemView.findViewById(R.id.text_description);
-            dateView = (TextView) itemView.findViewById(R.id.text_date);
-            checkBox = (CheckBox) itemView.findViewById(R.id.checkbox);
-
-            itemView.setOnClickListener(this);
-            checkBox.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            if (v == checkBox) {
-                fulfilledToggled(this);
-            } else {
-                postItemClick(this);
-            }
-        }
-    }
-
     private Cursor mCursor;
     private OnItemClickListener mOnItemClickListener;
     private Context mContext;
-
     public ShoppingItemListAdapter(Cursor cursor) {
         mCursor = cursor;
     }
@@ -135,5 +102,37 @@ public class ShoppingItemListAdapter extends RecyclerView.Adapter<ShoppingItemLi
     public void swapCursor(Cursor cursor) {
         mCursor = cursor;
         notifyDataSetChanged();
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(View v, int position);
+
+        void onItemToggled(boolean active, int position);
+    }
+
+    public class ItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public ShoppingItemTitleView nameView;
+        public TextView dateView;
+        public CheckBox checkBox;
+
+        public ItemHolder(View itemView) {
+            super(itemView);
+
+            nameView = (ShoppingItemTitleView) itemView.findViewById(R.id.text_description);
+            dateView = (TextView) itemView.findViewById(R.id.text_date);
+            checkBox = (CheckBox) itemView.findViewById(R.id.checkbox);
+
+            itemView.setOnClickListener(this);
+            checkBox.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (v == checkBox) {
+                fulfilledToggled(this);
+            } else {
+                postItemClick(this);
+            }
+        }
     }
 }

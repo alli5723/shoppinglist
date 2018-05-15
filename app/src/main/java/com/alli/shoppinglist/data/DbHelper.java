@@ -17,7 +17,7 @@ public class DbHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     private static final String SQL_CREATE_TABLE = String.format("CREATE TABLE %s"
-                    +" (%s INTEGER PRIMARY KEY AUTOINCREMENT, %s TEXT, %s INTEGER, %s INTEGER)",
+                    + " (%s INTEGER PRIMARY KEY AUTOINCREMENT, %s TEXT, %s INTEGER, %s INTEGER)",
             DatabaseContract.TABLE_SHOPPING_ITEM,
             DatabaseContract.TableColumns._ID,
             DatabaseContract.TableColumns.ITEM,
